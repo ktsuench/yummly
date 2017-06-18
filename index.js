@@ -64,11 +64,11 @@ var config = {
 }
 
 module.exports = {
-  config : function ( options ) {
+  config : function ( configOptions ) {
     var issue = "";
 
-    if ( options != null && options != undefined ) {
-      if ( ( typeof options ).toLowerCase() === "object" ) {
+    if ( configOptions != null && configOptions != undefined ) {
+      if ( ( typeof configOptions ).toLowerCase() === "object" ) {
         var options = {
           protocol : api.uri.protocol,
           hostname : api.uri.hostname,
@@ -76,14 +76,14 @@ module.exports = {
           headers : {}
         }
 
-        if ( options.hasOwnProperty( "id" ) ) {
-          options.headers[ config.app.id.header ] = options.id;
+        if ( configOptions.hasOwnProperty( "id" ) ) {
+          options.headers[ config.app.id.header ] = configOptions.id;
         } else {
           throw new Error( config.issue.missing.id() );
         }
 
-        if ( options.hasOwnProperty( "key" ) ) {
-          options.headers[ config.app.key.header ] = options.key;
+        if ( configOptions.hasOwnProperty( "key" ) ) {
+          options.headers[ config.app.key.header ] = configOptions.key;
         } else {
           throw new Error( config.issue.missing.key() );
         }
@@ -101,11 +101,11 @@ module.exports = {
               reject( result );
               throw new Error( config.issue.invalid.idOrKey() )
             } else {
-              config.app.id = options.id;
-              config.app.key = options.key;
+              config.app.id = configOptions.id;
+              config.app.key = configOptions.key;
 
               // return passed in options to verify the configuration is valid
-              resolve( app );
+              resolve( configOptions );
             }
           } );
         } );

@@ -1,6 +1,6 @@
 {
   "name": "kt-yummly",
-  "version": "0.1.0",
+  "version": "0.1.",
   "description": "Wrapper for Yummly API",
   "main": "index.js",
   "scripts": {
