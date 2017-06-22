@@ -170,5 +170,111 @@ describe ( "Metadata", function () {
         yummly.apiSearchParams.start.should.equal( position );
       } );
     } );
+
+    describe ( "Flavor - yummly.metadata.set.flavor()", function () {
+      describe ( "Object Test", function () {
+        it ( "Missing Value", function () {
+          expect( function () {
+            yummly.metadata.set.flavor();
+          } ).to.throw( Error, yummly.apiFail.metadata.missing.value );
+        } );
+
+        it ( "Invalid Value Type - 'a'", function () {
+          var flavors = "a";
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.object );
+        } );
+
+        it ( "Empty Value - {}", function () {
+          var flavors = {};
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.empty.value );
+        } );
+      } );
+
+      describe ( "Min Max Test", function () {
+        it ( "Missing Value - { sweet : null }", function () {
+          expect( function () {
+            var flavors = { sweet : null };
+
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.missing.value );
+        } );
+
+        it ( "Invalid Value Type - { sweet : 'a' }", function () {
+          var flavors = { sweet : "a" };
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.object );
+        } );
+
+        it ( "Empty Value - { sweet : {} }", function () {
+          var flavors = { sweet : {} };
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.empty.value );
+        } );
+
+        it ( "Unrecognized Value - { hot : { min : 2 } }", function () {
+          var flavors = { hot : { min : 2 } };
+          var errMsg = yummly.apiFail.metadata.invalid.value.flavorNutrition.unrecognized( Object.keys( flavors )[0] , "flavor" );
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, errMsg );
+        } );
+
+        it ( "No Minimum or Maximum - { sweet : { hot : 0 } }", function () {
+          var flavors = { sweet : { hot : 0 } };
+          var errMsg = yummly.apiFail.metadata.invalid.value.flavorNutrition.noMinMax( Object.keys( flavors )[0] , "flavor" );
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, errMsg );
+        } );
+      } );
+
+
+      describe ( "Float Test", function () {
+        it ( "Missing Value - { sweet : { min : null } }", function () {
+          var flavors = { sweet : { min : null } };
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.missing.value );
+        } );
+
+        it ( "Invalid ValueType - { sweet : { min : 'a' } }", function () {
+          var flavors = { sweet : { min : "a" } };
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.float );
+        } );
+
+        it ( "Invalid Value - { sweet : { min : -1 } }", function () {
+          var flavors = { sweet : { min : -1 } };
+
+          expect( function () {
+            yummly.metadata.set.flavor( flavors );
+          } ).to.throw( Error, yummly.apiFail.metadata.invalid.value.default );
+        } );
+
+        it ( "Valid Response - { sweet : { min : 0, max : 10 } }", function () {
+          var flavors = { sweet : { min : 0, max : 10 } };
+
+          yummly.metadata.set.flavor( flavors );
+
+          yummly.apiSearchParams.flavor.sweet.min.should.equal( flavors.sweet.min );
+          yummly.apiSearchParams.flavor.sweet.max.should.equal( flavors.sweet.max );
+        } );
+      } );
+    } );
   } );
 } );

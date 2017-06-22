@@ -33,6 +33,10 @@
   }
 
   function canSetInteger ( int, issue, startZero ) {
+    if ( startZero === null || startZero === undefined ) {
+      startZero = false;
+    }
+
     if ( int !== null && int !== undefined ) {
       if ( Number.isInteger( int ) ) {
         if ( int > 0 || ( startZero && int > -1 ) ) {
@@ -42,6 +46,26 @@
         }
       } else {
         throw new Error( issue.invalid.valueType.integer );
+      }
+    } else {
+      throw new Error( issue.missing.value );
+    }
+  }
+
+  function canSetFloat ( float, issue, startZero ) {
+    if ( startZero === null || startZero === undefined ) {
+      startZero = false;
+    }
+
+    if ( float !== null && float !== undefined ) {
+      if ( !Number.isNaN( parseFloat( float ) ) ) {
+        if ( float > 0 || ( startZero && float > -1 ) ) {
+          return true;
+        } else {
+          throw new Error( issue.invalid.value.default );
+        }
+      } else {
+        throw new Error( issue.invalid.valueType.float );
       }
     } else {
       throw new Error( issue.missing.value );
@@ -107,7 +131,7 @@
   function createIntegerFunctionFamily ( name, alias, startZero, params, issue ) {
     setMetadata.prototype[ name ] = function ( int ) {
       if ( canSetInteger( int, issue, startZero ) ) {
-        this.params[ name ] = int;
+        params[ name ] = int;
         return this;
       }
     }
@@ -115,6 +139,36 @@
     if ( alias !== null && alias !== undefined ) {
       // alias
       setMetadata.prototype[ alias ] = setMetadata.prototype[ name ];
+    }
+  }
+
+  function createFlavorNutritionFunctionFamily ( metadata, _this ) {
+    setMetadata.prototype[ metadata ] = function ( values ) {
+      if ( canSetObject( values, _this.issue ) ) {
+        Object.keys( values ).forEach( function ( value ) {
+          if ( canSetObject( values[ value ], _this.issue ) ) {
+            // check that the given flavor/nutrition value exists/supported
+            if ( Object.keys( _this.params[ metadata ] ).indexOf( value ) > -1 ) {
+              // check that there is a min/max property
+              if ( values[ value ].hasOwnProperty( "min" ) || values[ value ].hasOwnProperty( "max" ) ) {
+                if ( values[ value ].hasOwnProperty( "min" ) && canSetFloat( values[ value ][ "min" ], _this.issue, true ) ) {
+                  _this.params[ metadata ][ value ][ "min" ] = values[ value ][ "min" ];
+                }
+
+                if ( values[ value ].hasOwnProperty( "max" ) && canSetFloat( values[ value ][ "max" ], _this.issue, true ) ) {
+                  _this.params[ metadata ][ value ][ "max" ] = values[ value ][ "max" ];
+                }
+              } else {
+                throw new Error( _this.issue.invalid.value.flavorNutrition.noMinMax( value, metadata ) );
+              }
+            } else {
+              throw new Error( _this.issue.invalid.value.flavorNutrition.unrecognized( value, metadata ) );
+            }
+          }
+        } );
+
+        return this;
+      }
     }
   }
 }
@@ -147,32 +201,13 @@ var setMetadata = function ( params, metadata, issue ) {
 
   // start
   createIntegerFunctionFamily ( "start", null, true, this.params, this.issue );
+
+  // flavor
+  createFlavorNutritionFunctionFamily ( "flavor", this );
+
+  // nutrition
+  createFlavorNutritionFunctionFamily ( "nutrition", this );
 };
-
-setMetadata.prototype.flavor = function ( flavors ) {
-  if ( canSetObject( flavors, this.issue ) ) {
-    for ( var flavor in Object.keys( flavors ) ) {
-      if ( canSetObject( flavors[ flavor ], this.issue ) ) {
-        if ( Object.keys( this.params.flavor ).indexOf( flavor ) > -1 ) {
-          if ( flavors[ flavor ].hasOwnProperty( "min" ) || flavors[ flavor ].hasOwnProperty( "max" ) ) {
-            this.params.flavor[ flavor ] = flavors[ flavor ];
-          } else {
-            throw new Error( this.issue.invalid.value.flavorNutrition.noMinMax( flavor, "flavor" ) );
-          }
-        } else {
-          throw new Error( this.issue.invalid.value.flavorNutrition.unrecognized( flavor, "flavor" ) );
-        }
-      }
-    }
-
-    return this;
-  }
-}
-
-setMetadata.prototype.nutrition = function ( values ) {
-  this.params.nutrition = values;
-  return this;
-}
 
 setMetadata.prototype.facetCount = function ( arr ) {
   this.params.facetCount = arr;
