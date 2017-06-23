@@ -209,9 +209,29 @@ var setMetadata = function ( params, metadata, issue ) {
   createFlavorNutritionFunctionFamily ( "nutrition", this );
 };
 
-setMetadata.prototype.facetCount = function ( arr ) {
-  this.params.facetCount = arr;
-  return this;
+setMetadata.prototype.facetField = function ( arr ) {
+  var acceptedValues = [ "ingredient", "diet" ];
+
+  if ( canSetArray( arr, this.issue ) ) {
+    if ( arr.indexOf( acceptedValues[0] ) > - 1 || arr.indexOf( acceptedValues[1] ) > -1 ) {
+      // create new array to prevent invalid values to be mixed in stored value
+      var chunkedArr = [];
+
+      if ( arr.indexOf( acceptedValues[0] ) > -1 ) {
+        chunkedArr.push( acceptedValues[0] );
+      }
+
+      if ( arr.indexOf( acceptedValues[1] ) > -1 ) {
+        chunkedArr.push( acceptedValues[1] );
+      }
+
+      this.params.facetField = chunkedArr;
+
+      return this;
+    } else {
+      throw new Error( this.issue.invalid.value.facetField );
+    }
+  }
 }
 
 module.exports = setMetadata;

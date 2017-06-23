@@ -50,7 +50,49 @@ describe ( "Metadata", function () {
   } );
 
   describe ( "Set - yummly.metadata.set", function () {
-    describe ( "Diet - yummly.metadata.set.diet()", function () {
+    describe ( "Facet Field- yummly.metadata.set.facetField() - array", function () {
+      it ( "Missing Value", function () {
+        expect( function () {
+          yummly.metadata.set.facetField();
+        } ).to.throw( Error, yummly.apiFail.metadata.missing.value );
+      } );
+
+      it ( "Invalid Value Type", function () {
+        var fields = {};
+
+        expect( function () {
+          yummly.metadata.set.facetField( fields );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.array );
+      } );
+
+      it ( "Empty Value", function () {
+        var fields = [];
+
+        expect( function () {
+          yummly.metadata.set.facetField( fields );
+        } ).to.throw( Error, yummly.apiFail.metadata.empty.value );
+      } );
+
+      it ( "Invalid Response", function () {
+        var fields = [ "nutrition" ];
+
+        expect( function () {
+          yummly.metadata.set.facetField( fields );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.value.facetField );
+      } );
+
+      it ( "Valid Response", function () {
+        var fields = [ "ingredient", "diet", "nutrition" ];
+
+        yummly.metadata.set.facetField( fields );
+
+        yummly.apiSearchParams.facetField.should.include( fields[0] );
+        yummly.apiSearchParams.facetField.should.include( fields[1] );
+        yummly.apiSearchParams.facetField.should.not.include( fields[2] );
+      } );
+    } );
+
+    describe ( "Diet (alias of allowedDiet)- yummly.metadata.set.diet() - array", function () {
       it ( "Missing Value", function () {
         expect( function () {
           yummly.metadata.set.diet();
@@ -83,7 +125,7 @@ describe ( "Metadata", function () {
       } );
     } );
 
-    describe ( "Course - yummly.metadata.set.course()", function () {
+    describe ( "Course - yummly.metadata.set.course() - object", function () {
       it ( "Missing Value", function () {
         expect( function () {
           yummly.metadata.set.course();
@@ -121,7 +163,7 @@ describe ( "Metadata", function () {
       } );
     } );
 
-    describe ( "Duration - yummly.metadata.set.duration()", function () {
+    describe ( "Duration - yummly.metadata.set.duration() - integer > 0", function () {
       it ( "Missing Value", function () {
         expect( function () {
           yummly.metadata.set.duration();
@@ -153,7 +195,7 @@ describe ( "Metadata", function () {
       } );
     } );
 
-    describe ( "Start - yummly.metadata.set.start()", function () {
+    describe ( "Start - yummly.metadata.set.start() - integer >= 0", function () {
       it ( "Invalid Value", function () {
         var position = -1;
 
@@ -239,7 +281,6 @@ describe ( "Metadata", function () {
           } ).to.throw( Error, errMsg );
         } );
       } );
-
 
       describe ( "Float Test", function () {
         it ( "Missing Value - { sweet : { min : null } }", function () {

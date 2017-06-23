@@ -96,7 +96,8 @@ var api = {
           flavorNutrition : {
             unrecognized : buildInvalidFlavorNutritionIssue ( "Unrecognized ", ".unrecognized" ),
             noMinMax : buildInvalidFlavorNutritionIssue ( "Provide a min value or a max value. Or provide both for ", ".noMinMax" )
-          }
+          },
+          facetField : "Only 'ingredient' and 'diet' are recognized values."
         },
         valueType : {
           array : invalidValueType + "Expected array.",
@@ -150,7 +151,7 @@ var api = {
     },
     maxResult : 10, // number of results to return
     start : 0,      // result number to start at (default is 0)
-    facetCount : [] // lists the matching diets or ingredients and how many results match each diet or ingredient
+    facetField : [] // lists the matching diets or ingredients and how many results match each diet or ingredient
   }
 }
 
