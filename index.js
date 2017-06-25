@@ -2,6 +2,7 @@
 
 var pkg = require( "./struct.js" );
 var setMetadata = require( "./setMetadata.js" )
+var getMetadata = require( "./getMetadata.js" )
 var https = require( "https" );
 
 /**
@@ -127,14 +128,7 @@ var yummly = {
   },
   metadata : {
     set : new setMetadata( pkg.api.searchParams, pkg.api.metadata, pkg.api.issue.metadata ),
-    get : {
-      diet : function () { return pkg.api.searchParams.diet },
-      allergy : function () {},
-      ingredient : function () {},
-      cuisine : function () {},
-      course : function () {},
-      holiday : function () {}
-    },
+    get : new getMetadata( pkg.api.searchParams, pkg.api.metadata, pkg.api.issue.metadata ),
     acceptedValues : function ( category ) { return apiMetadata( category ); }
   }
 }

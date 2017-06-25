@@ -1,85 +1,15 @@
+var util = require( "./metadataUtility.js" );
+
 // private functions
 {
-  function canSetArray ( arr, issue ) {
-    if ( arr !== null && arr !== undefined ) {
-      if ( Array.isArray(arr) ) {
-        if ( arr.length > 0 ) {
-           return true;
-        } else {
-          throw new Error( issue.empty.value );
-        }
-      } else {
-        throw new Error( issue.invalid.valueType.array );
-      }
-    } else {
-      throw new Error( issue.missing.value );
-    }
-  }
-
-  function canSetObject ( obj, issue ) {
-    if ( obj !== null && obj !== undefined ) {
-      if ( ( typeof obj ).toLowerCase() === "object" && !Array.isArray( obj ) ) {
-        if ( Object.keys( obj ).length > 0 ) {
-          return true;
-        } else {
-          throw new Error( issue.empty.value );
-        }
-      } else {
-        throw new Error( issue.invalid.valueType.object );
-      }
-    } else {
-      throw new Error( issue.missing.value );
-    }
-  }
-
-  function canSetInteger ( int, issue, startZero ) {
-    if ( startZero === null || startZero === undefined ) {
-      startZero = false;
-    }
-
-    if ( int !== null && int !== undefined ) {
-      if ( Number.isInteger( int ) ) {
-        if ( int > 0 || ( startZero && int > -1 ) ) {
-          return true;
-        } else {
-          throw new Error( issue.invalid.value.default );
-        }
-      } else {
-        throw new Error( issue.invalid.valueType.integer );
-      }
-    } else {
-      throw new Error( issue.missing.value );
-    }
-  }
-
-  function canSetFloat ( float, issue, startZero ) {
-    if ( startZero === null || startZero === undefined ) {
-      startZero = false;
-    }
-
-    if ( float !== null && float !== undefined ) {
-      if ( !Number.isNaN( parseFloat( float ) ) ) {
-        if ( float > 0 || ( startZero && float > -1 ) ) {
-          return true;
-        } else {
-          throw new Error( issue.invalid.value.default );
-        }
-      } else {
-        throw new Error( issue.invalid.valueType.float );
-      }
-    } else {
-      throw new Error( issue.missing.value );
-    }
-  }
-
   function setAllowedExcluded ( metadata, obj, params, issue ) {
-    if ( canSetObject ( obj, issue ) ) {
+    if ( util.can.set.object ( obj, issue ) ) {
       if ( obj.hasOwnProperty( "allowed" ) || obj.hasOwnProperty( "excluded" ) ) {
-        if ( obj.hasOwnProperty( "allowed" ) && canSetArray ( obj.allowed, issue ) ) {
+        if ( obj.hasOwnProperty( "allowed" ) && util.can.set.array ( obj.allowed, issue ) ) {
           params[ "allowed" + metadata ] = obj.allowed;
         }
 
-        if ( obj.hasOwnProperty( "excluded" ) && canSetArray ( obj.excluded, issue ) ) {
+        if ( obj.hasOwnProperty( "excluded" ) && util.can.set.array ( obj.excluded, issue ) ) {
           params[ "excluded" + metadata ] = obj.excluded;
         }
       } else {
@@ -93,7 +23,7 @@
     metadata = metadata.substr( 0, 1 ).toUpperCase() + metadata.substr(1);
 
     setMetadata.prototype[ "allowed" + metadata ] = function ( arr ) {
-      if ( canSetArray( arr, issue ) ) {
+      if ( util.can.set.array( arr, issue ) ) {
         params[ "allowed" + metadata ] = arr;
         return this;
       }
@@ -108,14 +38,14 @@
     metadata = metadata.substr( 0, 1 ).toUpperCase() + metadata.substr(1);
 
     setMetadata.prototype[ "allowed" + metadata ] = function ( arr ) {
-      if ( canSetArray( arr, issue ) ) {
+      if ( util.can.set.array( arr, issue ) ) {
         params[ "allowed" + metadata ] = arr;
         return this;
       }
     }
 
     setMetadata.prototype[ "excluded" + metadata ] = function ( arr ) {
-      if ( canSetArray( arr, issue ) ) {
+      if ( util.can.set.array( arr, issue ) ) {
         params[ "excluded" + metadata ] = arr;
         return this;
       }
@@ -130,7 +60,7 @@
 
   function createIntegerFunctionFamily ( name, alias, startZero, params, issue ) {
     setMetadata.prototype[ name ] = function ( int ) {
-      if ( canSetInteger( int, issue, startZero ) ) {
+      if ( util.can.set.integer( int, issue, startZero ) ) {
         params[ name ] = int;
         return this;
       }
@@ -144,18 +74,18 @@
 
   function createFlavorNutritionFunctionFamily ( metadata, _this ) {
     setMetadata.prototype[ metadata ] = function ( values ) {
-      if ( canSetObject( values, _this.issue ) ) {
+      if ( util.can.set.object( values, _this.issue ) ) {
         Object.keys( values ).forEach( function ( value ) {
-          if ( canSetObject( values[ value ], _this.issue ) ) {
+          if ( util.can.set.object( values[ value ], _this.issue ) ) {
             // check that the given flavor/nutrition value exists/supported
             if ( Object.keys( _this.params[ metadata ] ).indexOf( value ) > -1 ) {
               // check that there is a min/max property
               if ( values[ value ].hasOwnProperty( "min" ) || values[ value ].hasOwnProperty( "max" ) ) {
-                if ( values[ value ].hasOwnProperty( "min" ) && canSetFloat( values[ value ][ "min" ], _this.issue, true ) ) {
+                if ( values[ value ].hasOwnProperty( "min" ) && util.can.set.float( values[ value ][ "min" ], _this.issue, true ) ) {
                   _this.params[ metadata ][ value ][ "min" ] = values[ value ][ "min" ];
                 }
 
-                if ( values[ value ].hasOwnProperty( "max" ) && canSetFloat( values[ value ][ "max" ], _this.issue, true ) ) {
+                if ( values[ value ].hasOwnProperty( "max" ) && util.can.set.float( values[ value ][ "max" ], _this.issue, true ) ) {
                   _this.params[ metadata ][ value ][ "max" ] = values[ value ][ "max" ];
                 }
               } else {
@@ -212,7 +142,7 @@ var setMetadata = function ( params, metadata, issue ) {
 setMetadata.prototype.facetField = function ( arr ) {
   var acceptedValues = [ "ingredient", "diet" ];
 
-  if ( canSetArray( arr, this.issue ) ) {
+  if ( util.can.set.array( arr, this.issue ) ) {
     if ( arr.indexOf( acceptedValues[0] ) > - 1 || arr.indexOf( acceptedValues[1] ) > -1 ) {
       // create new array to prevent invalid values to be mixed in stored value
       var chunkedArr = [];

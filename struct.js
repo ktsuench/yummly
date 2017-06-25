@@ -97,14 +97,16 @@ var api = {
             unrecognized : buildInvalidFlavorNutritionIssue ( "Unrecognized ", ".unrecognized" ),
             noMinMax : buildInvalidFlavorNutritionIssue ( "Provide a min value or a max value. Or provide both for ", ".noMinMax" )
           },
-          facetField : "Only 'ingredient' and 'diet' are recognized values."
+          facetField : "Only 'ingredient' and 'diet' are recognized values.",
+          allowedExcluded : "Only 'allowed' and 'excluded' are recognized values."
         },
         valueType : {
           array : invalidValueType + "Expected array.",
           integer : invalidValueType + "Expected absolute integer.",
           float : invalidValueType + "Expected absolute float.",
           object : invalidValueType + "Expected object",
-          range : invalidValueType + "Expected float between 0 and 1."
+          range : invalidValueType + "Expected float between 0 and 1.",
+          string : invalidValueType + "Expected string."
         }
       },
       get : {

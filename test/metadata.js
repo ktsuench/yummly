@@ -92,7 +92,7 @@ describe ( "Metadata", function () {
       } );
     } );
 
-    describe ( "Diet (alias of allowedDiet)- yummly.metadata.set.diet() - array", function () {
+    describe ( "Diet (alias of allowedDiet) - yummly.metadata.set.diet() - array", function () {
       it ( "Missing Value", function () {
         expect( function () {
           yummly.metadata.set.diet();
@@ -125,7 +125,7 @@ describe ( "Metadata", function () {
       } );
     } );
 
-    describe ( "Course - yummly.metadata.set.course() - object", function () {
+    describe ( "Course - yummly.metadata.set.course() - array/object", function () {
       it ( "Missing Value", function () {
         expect( function () {
           yummly.metadata.set.course();
@@ -148,10 +148,24 @@ describe ( "Metadata", function () {
         } ).to.throw( Error, yummly.apiFail.metadata.empty.value );
       } );
 
-      it ( "Valid Response", function () {
+      it ( "Valid Response - array", function () {
+        var allowed = [ "course^course-Main Dishes", "course^course-Desserts" ];
+        var excluded = [ "course^course-Breads", "course^course-Condiments and Sauces" ];
+
+
+        yummly.metadata.set.allowedCourse( allowed );
+        yummly.metadata.set.excludedCourse( excluded );
+
+        yummly.apiSearchParams.allowedCourse.should.include( allowed[0] );
+        yummly.apiSearchParams.allowedCourse.should.include( allowed[1] );
+        yummly.apiSearchParams.excludedCourse.should.include( excluded[0] );
+        yummly.apiSearchParams.excludedCourse.should.include( excluded[1] );
+      } );
+
+      it ( "Valid Response - object", function () {
         var courses = {
-          allowed : [ "course^course-Main Dishes", "course^course-Desserts" ],
-          excluded : [ "course^course-Breads", "course^course-Condiments and Sauces"]
+          allowed : [ "course^course-Breads", "course^course-Condiments and Sauces" ],
+          excluded : [ "course^course-Main Dishes", "course^course-Desserts" ]
         };
 
         yummly.metadata.set.course( courses );
@@ -315,6 +329,134 @@ describe ( "Metadata", function () {
           yummly.apiSearchParams.flavor.sweet.min.should.equal( flavors.sweet.min );
           yummly.apiSearchParams.flavor.sweet.max.should.equal( flavors.sweet.max );
         } );
+      } );
+    } );
+  } );
+
+  describe ( "Get - yummly.metadata.get" , function () {
+    it ( "Facet Field - yummly.metadata.get.facetField() - array" , function () {
+      var facetField = [ "diet" ];
+
+      yummly.apiSearchParams.facetField = facetField;
+
+      yummly.metadata.get.facetField()[0].should.equal( facetField[0] );
+    } );
+
+    it ( "Allergy (alias of allowedAllergy) - yummly.metadata.get.allergy() - array" , function () {
+      var allergies = [ "393^Gluten-Free", "394^Peanut-Free" ];
+
+      yummly.apiSearchParams.allowedAllergy = allergies;
+
+      yummly.metadata.get.allergy()[0].should.equal( allergies[0] );
+      yummly.metadata.get.allergy()[1].should.equal( allergies[1] );
+    } );
+
+    describe( "Ingredient - yummly.metadata.get.ingredient()",  function () {
+      it ( "Array Response" , function () {
+        allowed = [ "butter", "sugar" ];
+        excluded = [ "eggs", "onions" ];
+
+        yummly.apiSearchParams.allowedIngredient = allowed;
+        yummly.apiSearchParams.excludedIngredient = excluded;
+
+        yummly.metadata.get.allowedIngredient()[0].should.equal( allowed[0] );
+        yummly.metadata.get.allowedIngredient()[1].should.equal( allowed[1] );
+        yummly.metadata.get.excludedIngredient()[0].should.equal( excluded[0] );
+        yummly.metadata.get.excludedIngredient()[1].should.equal( excluded[1] );
+      } );
+
+      it ( "Object Response - Invalid param prefix value type" , function () {
+        expect( function () {
+          yummly.metadata.get.ingredient( 1 );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.string );
+      } );
+
+      it ( "Object Response - Invalid param prefix value" , function () {
+        expect( function () {
+          yummly.metadata.get.ingredient( "none" );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.value.allowedExcluded );
+      } );
+
+      it ( "Object Response - Valid default" , function () {
+        var ingredients = {
+          allowed : [ "eggs", "onions" ],
+          excluded : [ "butter", "sugar" ]
+        };
+
+        yummly.apiSearchParams.allowedIngredient = ingredients.allowed;
+        yummly.apiSearchParams.excludedIngredient = ingredients.excluded;
+
+        yummly.metadata.get.ingredient().allowed[0].should.equal( ingredients.allowed[0] );
+        yummly.metadata.get.ingredient( null ).allowed[1].should.equal( ingredients.allowed[1] );
+        yummly.metadata.get.ingredient( undefined ).excluded[0].should.equal( ingredients.excluded[0] );
+        yummly.metadata.get.ingredient().excluded[1].should.equal( ingredients.excluded[1] );
+      } );
+
+      it ( "Object Response - Valid param prefix" , function () {
+        var ingredients = {
+          allowed : [ "butter", "sugar" ],
+          excluded : [ "eggs", "onions" ]
+        };
+
+        yummly.apiSearchParams.allowedIngredient = ingredients.allowed;
+        yummly.apiSearchParams.excludedIngredient = ingredients.excluded;
+
+        yummly.metadata.get.ingredient( "allowed" )[0].should.equal( ingredients.allowed[0] );
+        yummly.metadata.get.ingredient( "allowed" )[1].should.equal( ingredients.allowed[1] );
+        yummly.metadata.get.ingredient( "excluded" )[0].should.equal( ingredients.excluded[0] );
+        yummly.metadata.get.ingredient( "excluded" )[1].should.equal( ingredients.excluded[1] );
+      } );
+    } );
+
+    it ( "Max Recipes (alias of Max Results) - yummly.metadata.get.maxRecipes() - integer" , function () {
+      var max = 10;
+
+      yummly.apiSearchParams.maxResult = max;
+
+      yummly.metadata.get.maxRecipes().should.equal( max );
+    } );
+
+    describe( "Nutrition - yummly.metadata.get.nutrition()", function () {
+      it ( "Object Response - Valid default" , function () {
+        var nutrition = {
+          K : { min : 1, max : 24 },
+          NA : { min : 13, max : 42 }
+        };
+
+        yummly.apiSearchParams.nutrition.K = nutrition.K;
+        yummly.apiSearchParams.nutrition.NA = nutrition.NA;
+
+        yummly.metadata.get.nutrition().K.min.should.equal( nutrition.K.min );
+        yummly.metadata.get.nutrition().K.max.should.equal( nutrition.K.max );
+        yummly.metadata.get.nutrition().NA.min.should.equal( nutrition.NA.min );
+        yummly.metadata.get.nutrition().NA.max.should.equal( nutrition.NA.max );
+      } );
+
+      it ( "Object Response - Invalid param prefix value type" , function () {
+        expect( function () {
+          yummly.metadata.get.nutrition( 1 );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.string );
+      } );
+
+      it ( "Object Response - Invalid param prefix value" , function () {
+        expect( function () {
+          yummly.metadata.get.nutrition( "none" );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.value.flavorNutrition.unrecognized( "none", "nutrition" ) );
+      } );
+
+      it ( "Object Response - Valid category specified" , function () {
+        var nutrition = {
+          K : { min : 1, max : 24 },
+          NA : { min : 13, max : 42 }
+        };
+
+        yummly.apiSearchParams.nutrition.K = nutrition.K;
+        yummly.apiSearchParams.nutrition.NA = nutrition.NA;
+
+        yummly.metadata.get.nutrition( "K" ).min.should.equal( nutrition.K.min );
+        yummly.metadata.get.nutrition( "K" ).max.should.equal( nutrition.K.max );
+        yummly.metadata.get.nutrition( "NA" ).min.should.equal( nutrition.NA.min );
+        yummly.metadata.get.nutrition( "NA" ).max.should.equal( nutrition.NA.max );
       } );
     } );
   } );
