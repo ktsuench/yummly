@@ -1,5 +1,7 @@
 'use strict';
 
+require( "dotenv" ).config();
+
 var pkg = require( "./struct.js" );
 var setMetadata = require( "./setMetadata.js" )
 var getMetadata = require( "./getMetadata.js" )
@@ -89,22 +91,24 @@ function apiMetadata ( category ) {
 
         options.path += category;
 
-        return new Promise ( function ( resolve, reject ) {
-          https.request( options, function ( response ) {
-            if ( response.statusCode === 200 ) {
-              resolve( response );
-            } else {
-              var result = {
-                response : response,
-                error : pkg.api.issue.metadata.get.acceptedValues
-              }
+        if ( process.env.ENVIRONMENT === "prod" && process.env.APIACCESS === "on" ) {
+          return new Promise ( function ( resolve, reject ) {
+            https.request( options, function ( response ) {
+              if ( response.statusCode === 200 ) {
+                resolve( response );
+              } else {
+                var result = {
+                  response : response,
+                  error : pkg.api.issue.metadata.get.acceptedValues
+                }
 
-              // return error message and response of request
-              reject( result );
-              throw new Error( pkg.api.issue.metadata.get.acceptedValues );
-            }
+                // return error message and response of request
+                reject( result );
+                throw new Error( pkg.api.issue.metadata.get.acceptedValues );
+              }
+            } );
           } );
-        } );
+        }
       } else {
         throw new Error( pkg.api.issue.metadata.empty.category );
       }

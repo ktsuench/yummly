@@ -1,3 +1,5 @@
+'use strict';
+
 require( "dotenv" ).config();
 
 var chai = require( "chai" );
@@ -8,7 +10,7 @@ var yummly = require( "../index.js" );
 
 chai.use( chaiAsPromised );
 
-/*describe ( "Configuration", function () {
+describe ( "Configuration", function () {
   it ( "Empty - configuration not provided", function () {
     expect ( function () {
       yummly.config( null );
@@ -47,21 +49,25 @@ chai.use( chaiAsPromised );
     } ).to.throw( Error, yummly.configFail.missing.key );
   } );
 
-  it( "Valid", function () {
-    var options = {
-      id : process.env.APPID,
-      key : process.env.APPKEY
+  it( "Valid API Access - Requires API Access", function () {
+    if ( process.env.APIACCESS === "on" ) {
+      var options = {
+        id : process.env.APPID,
+        key : process.env.APPKEY
+      }
+
+      // test that the original options are returned
+      yummly.config( options ).should.eventually.equal( options );
+
+      var config = {
+        id : yummly.configApp.id.value,
+        key : yummly.configApp.key.value
+      }
+
+      // test that the configuration has been correct set
+      yummly.config( options ).should.eventually.equal( config );
+    } else {
+      should.fail( null, null, "Test will be run when api access is allowed." );
     }
-
-    // test that the original options are returned
-    yummly.config( options ).should.eventually.equal( options );
-
-    var config = {
-      id : yummly.configApp.id.value,
-      key : yummly.configApp.key.value
-    }
-
-    // tesst that the configuration has been correct set
-    yummly.config( options ).should.eventually.equal( config );
   } );
-} );*/
+} );

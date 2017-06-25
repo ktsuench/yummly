@@ -1,3 +1,5 @@
+'use strict';
+
 require( "dotenv" ).config();
 
 var chai = require( "chai" );
@@ -41,11 +43,15 @@ describe ( "Metadata", function () {
       } ).to.throw( Error, yummly.apiFail.metadata.invalid.categoryType );
     } );
 
-    it ( "Valid Response", function () {
-      yummly.metadata.acceptedValues( "holiday" ).should.eventually.have.nested.include({ 
-        id : "holiday-christmas",
-        searchValue : "holiday^holiday-christmas"
-      } );
+    it ( "Valid Response - Requires API Access", function () {
+      if ( process.env.APIACCESS === "on" ) {
+        yummly.metadata.acceptedValues( "holiday" ).should.eventually.have.nested.include({ 
+          id : "holiday-christmas",
+          searchValue : "holiday^holiday-christmas"
+        } );
+      } else {
+        should.fail( null, null, "Test will be run when api access is allowed." );
+      }
     } );
   } );
 
@@ -353,8 +359,8 @@ describe ( "Metadata", function () {
 
     describe( "Ingredient - yummly.metadata.get.ingredient()",  function () {
       it ( "Array Response" , function () {
-        allowed = [ "butter", "sugar" ];
-        excluded = [ "eggs", "onions" ];
+        var allowed = [ "butter", "sugar" ];
+        var excluded = [ "eggs", "onions" ];
 
         yummly.apiSearchParams.allowedIngredient = allowed;
         yummly.apiSearchParams.excludedIngredient = excluded;
@@ -417,6 +423,18 @@ describe ( "Metadata", function () {
     } );
 
     describe( "Nutrition - yummly.metadata.get.nutrition()", function () {
+      it ( "Object Response - Invalid param prefix value type" , function () {
+        expect( function () {
+          yummly.metadata.get.nutrition( 1 );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.string );
+      } );
+
+      it ( "Object Response - Invalid param prefix value" , function () {
+        expect( function () {
+          yummly.metadata.get.nutrition( "none" );
+        } ).to.throw( Error, yummly.apiFail.metadata.invalid.value.flavorNutrition.unrecognized( "none", "nutrition" ) );
+      } );
+
       it ( "Object Response - Valid default" , function () {
         var nutrition = {
           K : { min : 1, max : 24 },
@@ -432,22 +450,10 @@ describe ( "Metadata", function () {
         yummly.metadata.get.nutrition().NA.max.should.equal( nutrition.NA.max );
       } );
 
-      it ( "Object Response - Invalid param prefix value type" , function () {
-        expect( function () {
-          yummly.metadata.get.nutrition( 1 );
-        } ).to.throw( Error, yummly.apiFail.metadata.invalid.valueType.string );
-      } );
-
-      it ( "Object Response - Invalid param prefix value" , function () {
-        expect( function () {
-          yummly.metadata.get.nutrition( "none" );
-        } ).to.throw( Error, yummly.apiFail.metadata.invalid.value.flavorNutrition.unrecognized( "none", "nutrition" ) );
-      } );
-
       it ( "Object Response - Valid category specified" , function () {
         var nutrition = {
-          K : { min : 1, max : 24 },
-          NA : { min : 13, max : 42 }
+          K : { min : 13, max : 42 },
+          NA : { min : 1, max : 24 }
         };
 
         yummly.apiSearchParams.nutrition.K = nutrition.K;
