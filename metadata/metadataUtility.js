@@ -1,3 +1,5 @@
+"use strict";
+
 function canSetArray ( arr, issue ) {
   if ( arr !== null && arr !== undefined ) {
     if ( Array.isArray(arr) ) {
