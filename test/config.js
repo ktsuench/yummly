@@ -6,7 +6,7 @@ var chai = require( "chai" );
 var chaiAsPromised = require("chai-as-promised");
 var expect = chai.expect;
 var should = chai.should();
-var yummly = require( "../index.js" );
+var yummly = require( "../index" );
 
 chai.use( chaiAsPromised );
 

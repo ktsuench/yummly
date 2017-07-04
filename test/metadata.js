@@ -6,16 +6,19 @@ var chai = require( "chai" );
 var chaiAsPromised = require("chai-as-promised");
 var expect = chai.expect;
 var should = chai.should();
-var yummly = require( "../index.js" );
+var yummly = require( "../index" );
+var options;
 
 chai.use( chaiAsPromised );
 
-var options = {
-  id : process.env.APPID,
-  key : process.env.APPKEY
-}
+if ( process.env.APIACCESS === "on" ) {
+  options = {
+    id : process.env.APPID,
+    key : process.env.APPKEY
+  }
 
-//yummly.config( options );
+  yummly.config( options );
+}
 
 describe ( "Metadata", function () {
   describe ( "Accepted Values - yummly.metadata.acceptedValues()", function () {
