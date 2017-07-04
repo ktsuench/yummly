@@ -3,9 +3,10 @@
 require( "dotenv" ).config();
 
 var https = require( "https" );
-var pkg = require( "./struct" );
-var config = require( "./config" );
+var pkg = require( "./base/struct" );
+var config = require( "./base/config" );
 var metadata = require( "./metadata/metadata" );
+var util = require( "./base/util.js" );
 
 var yummly = {
   config : config( pkg.config.app, pkg.api.uri, pkg.config.issue ),
