@@ -50,7 +50,7 @@ var api = {
   },
   endpoint : {
     getSearch : function ( returnObj ) {
-      return api.endpoint.retreive ( "recipes/", returnObj );
+      return api.endpoint.retreive ( "recipes", returnObj );
     },
     getRetreive : function ( returnObj ) {
       return api.endpoint.retreive ( "recipe/", returnObj );
