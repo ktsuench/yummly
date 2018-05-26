@@ -1,0 +1,27 @@
+.DS_Store
+*.log
+*.env
+
+## Vagrant
+.vagrant
+
+## Node
+/node_modules
+npm-debug.log
+.DS_Store
+.npmrc
+
+## Bower
+/bower_components
+
+## VS Code files
+.vscode/
+ftp-sync.json
+
+## Sublime Text cache files
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+/nbproject/private/
